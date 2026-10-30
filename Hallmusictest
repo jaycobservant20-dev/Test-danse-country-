@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Site Country - Spécial Halloween</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #120f18; /* Fond sombre mystique */
+            color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .pattern-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.12;
+            font-size: 1.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-content: space-around;
+            overflow: hidden;
+        }
+
+        /* Bande défilante en haut */
+        .bande-defilante {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ea580c; /* Orange citrouille */
+            color: #120f18;
+            font-weight: bold;
+            padding: 8px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(234, 88, 12, 0.4);
+        }
+        .bande-defilante span {
+            display: inline-block;
+            padding-left: 100%;
+            animation: defilement 15s linear infinite;
+        }
+        @keyframes defilement {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+
+        /* Lecteur audio flottant en bas */
+        .lecteur-musique {
+            position: fixed;
+            bottom: 15px;
+            background: rgba(26, 22, 37, 0.9);
+            border: 2px solid #ea580c;
+            padding: 8px 15px;
+            border-radius: 30px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);
+        }
+        .lecteur-musique span {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #fb923c;
+        }
+        .lecteur-musique audio {
+            height: 30px;
+            outline: none;
+        }
+
+        /* --- ÉCRAN ACCUEIL --- */
+        #section-accueil {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            background: rgba(26, 22, 37, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(234, 88, 12, 0.2);
+            border: 2px solid #ea580c;
+            margin-top: 30px;
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #f97316;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+        }
+        .bulle-sous-titre {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: #d1d5db;
+            background: rgba(234, 88, 12, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ea580c;
+        }
+        .btn-groupe-accueil {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+        }
+        .btn-commencer, .btn-credits-ouvrir {
+            background-color: #ea580c;
+            color: #fff;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 250px;
+            box-shadow: 0 4px 10px rgba(234, 88, 12, 0.3);
+            transition: background-color 0.2s;
+        }
+        .btn-commencer:active, .btn-credits-ouvrir:active {
+            background-color: #c2410c;
+            transform: scale(0.98);
+        }
+
+        /* --- MODAL CRÉDITS --- */
+        #modal-credits {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            padding: 15px;
+        }
+        .credits-contenu {
+            background: #1a1625;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            border: 2px solid #ea580c;
+            box-shadow: 0 10px 25px rgba(234, 88, 12, 0.3);
+            color: #f3f4f6;
+            text-align: left;
+        }
+        .credits-contenu h3 {
+            color: #f97316;
+            margin-top: 0;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .credits-contenu p {
+            margin: 10px 0;
+            line-height: 1.5;
+            color: #d1d5db;
+        }
+        .credits-contenu a {
+            color: #fb923c;
+            word-break: break-all;
+        }
+        .btn-fermer-credits {
+            display: block;
+            margin: 20px auto 0 auto;
+            background-color: #ea580c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* --- ÉCRAN CHOIX DES NIVEAUX --- */
+        #section-niveaux {
+            display: none;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            margin-top: 30px;
+        }
+        #section-niveaux h2 {
+            color: #f97316;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(249, 115, 22, 0.4);
+        }
+        .menu-niveaux {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .btn-niveau {
+            background-color: #1a1625;
+            color: #f3f4f6;
+            border: 2px solid #ea580c;
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .btn-niveau:active {
+            background-color: #ea580c;
+            color: white;
+        }
+
+        /* --- ÉCRAN LISTE DES DANSES --- */
+        #section-danses {
+            display: none;
+            width: 100%;
+            max-width: 1000px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        #section-danses h2 {
+            color: #f97316;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            font-size: 1.4rem;
+            padding: 0 10px;
+        }
+        .grid-danses {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            padding: 10px;
+        }
+        .conteneur-element-danse {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        .badge-createur {
+            background-color: #ea580c;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 15px 15px 0 0;
+            margin-bottom: -2px;
+            display: inline-block;
+            align-self: center;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .btn-danse {
+            background-color: #1a1625;
+            color: #f3f4f6;
+            border: 2px solid #ea580c;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            width: 100%;
+        }
+        .btn-danse:active {
+            background-color: #ea580c;
+            color: white;
+        }
+        .btn-retour-niveaux {
+            display: inline-block;
+            margin-top: 30px;
+            background-color: transparent;
+            color: #fb923c;
+            border: 2px solid #ea580c;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* --- ÉCRAN DÉTAIL D'UNE DANSE --- */
+        #section-detail-danse {
+            display: none;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            background: rgba(26, 22, 37, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(234, 88, 12, 0.2);
+            border: 2px solid #ea580c;
+            margin-top: 30px;
+        }
+        #titre-danse-selectionnee {
+            color: #f97316;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+        }
+        .menu-options-danse {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .btn-option-danse {
+            background-color: #1a1625;
+            color: #f3f4f6;
+            border: 2px solid #ea580c;
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            text-decoration: none;
+            display: block;
+        }
+        .btn-option-danse:active {
+            background-color: #ea580c;
+            color: white;
+        }
+        .btn-retour-danses {
+            display: inline-block;
+            margin-top: 25px;
+            background-color: transparent;
+            color: #fb923c;
+            border: 2px solid #ea580c;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Bande défilante orange en haut -->
+    <div class="bande-defilante">
+        <span>🎃 SPÉCIAL HALLOWEEN — EN COLLABORATION AVEC SARAH 👻</span>
+    </div>
+
+    <!-- Lecteur de musique de fond (Spooky Scary Skeletons) -->
+    <div class="lecteur-musique">
+        <span>🎵 Musique Halloween :</span>
+        <audio controls loop>
+            <source src="https://www.youtube.com/watch?v=Jr55EzQeHf4" type="audio/mp4">
+            <source src="https://ia801500.us.archive.org/29/items/SpookyScarySkeletonsOriginalSong/Spooky%20Scary%20Skeletons%20Original%20Song.mp3" type="audio/mp3">
+            Votre navigateur ne supporte pas l'audio.
+        </audio>
+    </div>
+
+    <div class="pattern-bg">
+        🎃 👻 🦇 🕷️ 💀 🎃 👻 🦇 🕷️ 💀 
+        🦇 🕷️ 💀 🎃 👻 🦇 🕷️ 💀 🎃 👻 
+        💀 🎃 👻 🦇 🕷️ 💀 🎃 👻 🦇 🕷️ 
+    </div>
+
+    <!-- 1. Écran d'accueil -->
+    <div id="section-accueil">
+        <h1>Halloween Country</h1>
+        <div class="bulle-sous-titre">
+            Bienvenue dans le recueil de danse country (Édition Halloween)
+        </div>
+        <div class="btn-groupe-accueil">
+            <button class="btn-commencer" id="btn-commencer">Commencer</button>
+            <button class="btn-credits-ouvrir" id="btn-credits">Crédits</button>
+        </div>
+    </div>
+
+    <!-- Fenêtre modale des Crédits -->
+    <div id="modal-credits">
+        <div class="credits-contenu">
+            <h3>Crédits</h3>
+            <p><strong>Créateur officiel :</strong> Jaycob Servant</p>
+            <p><strong>Co-Créateur officiel :</strong> Sarah</p>
+            <p><strong>Danse en ligne :</strong> Mg Danse Country-pop Mathieu Gagné</p>
+            <p><a href="https://youtube.com/@mgdansecountrypop?si=jDQfKF09Tvdv3VmW" target="_blank">Chaîne YouTube</a></p>
+            <button class="btn-fermer-credits" id="btn-fermer-credits">Fermer</button>
+        </div>
+    </div>
+
+    <!-- 2. Écran de choix du niveau -->
+    <div id="section-niveaux">
+        <h2>Choisis ton niveau</h2>
+        <div class="menu-niveaux">
+            <button class="btn-niveau" data-niveau="Novice">Novice</button>
+            <button class="btn-niveau" data-niveau="Débutant">Débutant</button>
+            <button class="btn-niveau" data-niveau="Intermédiaire">Intermédiaire</button>
+            <button class="btn-niveau" data-niveau="Autre">Autre</button>
+        </div>
+        <div>
+            <button class="btn-retour-niveaux" id="btn-retour-accueil">&larr; Retour à l'accueil</button>
+        </div>
+    </div>
+
+    <!-- 3. Écran avec la liste des danses -->
+    <div id="section-danses">
+        <h2>VOILÀ LES DANSES COUNTRY DISPONIBLES POUR L'INSTANT</h2>
+        <div class="grid-danses" id="grille-liste-danses"></div>
+        <div>
+            <button class="btn-retour-niveaux" id="btn-retour-niveaux">&larr; Changer de niveau</button>
+        </div>
+    </div>
+
+    <!-- 4. Écran de détail d'une danse -->
+    <div id="section-detail-danse">
+        <h2 id="titre-danse-selectionnee">Nom de la danse</h2>
+        <div class="menu-options-danse">
+            <a id="lien-danse-ligne" href="#" target="_blank" class="btn-option-danse">DANSE EN LIGNE</a>
+            <a id="lien-musique" href="#" target="_blank" class="btn-option-danse">MUSIQUE</a>
+        </div>
+        <div>
+            <button class="btn-retour-danses" id="btn-retour-danses">&larr; Retour aux danses</button>
+        </div>
+    </div>
+
+    <script>
+        const dansesData = {
+            "Novice": [
+                {
+                    nom: "The Wolf",
+                    danseLigne: "https://youtu.be/XP1Ge5k6sBI?si=dYsSwVgCiqgt48e5",
+                    musique: "https://youtu.be/-w7_tQd0pL8?si=2ls8qpaqFHnff_5E"
+                },
+                {
+                    nom: "One more",
+                    danseLigne: "https://youtu.be/WnlNitg_EaY?si=FsqpBBg-SCKfHpBQ",
+                    musique: "https://youtu.be/TAKg5ySinGI?si=-XzTfqDma_C-OLse"
+                },
+                {
+                    nom: "Hit The 4",
+                    danseLigne: "https://youtu.be/Z5NeurNFT-s?si=cIrHVu4umKYOE7sQ",
+                    musique: "https://youtu.be/tXVaLWR2M8k?si=F8boJ_qCaR4pi1sM"
+                }
+            ],
+            "Débutant": [
+                {
+                    nom: "Hoedown",
+                    danseLigne: "https://youtu.be/zCxkvuL7L04?si=NJJv55frp01MO9WF",
+                    musique: "https://youtu.be/5MCqzkus1xU?si=bgcIwSd6SKUAp_tK"
+                },
+                {
+                    nom: "Austin",
+                    danseLigne: "https://youtu.be/dDahjdG-MJw?si=54iCycjg0nzk79Nc",
+                    musique: "https://youtu.be/FyjnbSsZ2tc?si=5P_CAMNO2OcQVNjY"
+                },
+                {
+                    nom: "Glass of Wine",
+                    danseLigne: "https://youtu.be/EBTaqY2yrU8?si=7CFG7WyAzGdd0dKi",
+                    musique: "https://youtu.be/eEEYERfWDqg?si=qgl4dcNO10Zoprg-"
+                },
+                {
+                    nom: "High Horse",
+                    danseLigne: "https://youtu.be/j0h5ocHpORI?si=xVbL2SGSddU9Jc4L",
+                    musique: "https://youtu.be/2LLJGMTHbDs?si=LamCDK4lA24H3tNg"
+                },
+                {
+                    nom: "Damn",
+                    danseLigne: "https://youtu.be/Zyw7ANkDyGc?si=_egw6wda3sR31K-i",
+                    musique: "https://youtu.be/22cPDBuhYYg?si=4LPPsf5b7SzTFeAA"
+                },
+                {
+                    nom: "Ziggy",
+                    danseLigne: "https://youtu.be/S5LPfCiq7-4?si=m6_0EZua7HDKzZy7",
+                    musique: "https://youtu.be/FIRyO0dMniE?si=9l7Xu6YH7XILdTQo"
+                },
+                {
+                    nom: "Alligator Smile",
+                    danseLigne: "https://youtu.be/soYbRh8xkKs?si=QS_kxCtof3m20nSH",
+                    musique: "https://youtu.be/NiLNed5DrzI?si=xsssMsZwdfaGesRl"
+                },
+                {
+                    nom: "Burn It to the Ground",
+                    danseLigne: "https://youtu.be/CZWPs9BnJIw?si=Yy-e99mAxXPTKZ86",
+                    musique: "https://youtu.be/gUxH1zN0yOc?si=2lf1f0Y2fjtyLnR6"
+                },
+                {
+                    nom: "Footloose",
+                    danseLigne: "https://youtu.be/miZJe008SuI?si=Hce79ePsnWhJJE6p",
+                    musique: "https://youtu.be/FDMHZFJnk2s?si=Uc7N21pzbWoP98CW"
+                },
+                {
+                    nom: "Soldier",
+                    danseLigne: "https://youtu.be/KX7FropHUcg?si=60U9PgBNd2u99LVZ",
+                    musique: "https://youtu.be/Ok2AQKRMPmM?si=VP-ch1Cpsr0zBACV",
+                    specials: ["👑 Choix de la Co-Créatrice", "Choix 2 de l'équipe"]
+                },
+                {
+                    nom: "Back to the Start",
+                    danseLigne: "https://youtu.be/XvDqAgyW-Jg?si=olfj6mAt31cEU5EG",
+                    musique: "https://youtu.be/SF8OalDtKnQ?si=-2dllMqAi-eEJY01"
+                },
+                {
+                    nom: "Cowboy Boogie",
+                    danseLigne: "https://youtu.be/_WX112-pgWE?si=ypZNx2BcSJ0a1WYo",
+                    musique: "https://youtu.be/bFrYS28IV-E?si=L8YGzfSaQFlvU3ZA"
+                },
+                {
+                    nom: "Good Time",
+                    danseLigne: "https://youtu.be/KePwvAXTomg?si=_1p7mIIyv0DBSBIb",
+                    musique: "https://youtu.be/OYKmqErgHq8?si=jOHZ8EWUH3gqupWi"
+                }
+            ],
+            "Intermédiaire": [
+                {
+                    nom: "Banjo",
+                    danseLigne: "https://youtu.be/s8wiPMWChYk?si=DnYwqKM2ssGJuY2P",
+                    musique: "https://youtu.be/g8q1k1G5OiM?si=Op-ogZcOOrNNCaJ2",
+                    specials: ["👑 Choix Du Créateur"]
+                },
+                {
+                    nom: "Oh love",
+                    danseLigne: "https://youtu.be/thcjtQXca_o?si=zkJXHIf5nYfybmc9",
+                    musique: "https://youtu.be/Qai6lm1BuR8?si=Xkt-HJidu1S7axI5"
+                },
+                {
+                    nom: "Bloodline",
+                    danseLigne: "https://youtu.be/W3LNvgZhpLM?si=3HXJ3Kbh-nAJt8xS",
+                    musique: "https://youtu.be/UBtfcphWKBY?si=sOlcmQWWFPVT-HuM"
+                },
+                {
+                    nom: "I See Country",
+                    danseLigne: "https://youtu.be/ZvmNqiuDsfE?si=dIDYdggLi5GyP0y4",
+                    musique: "https://youtu.be/c6Ol1CrD8Rs?si=kAoxaGuk3IFtTBsK"
+                },
+                {
+                    nom: "Where I Belong",
+                    danseLigne: "https://youtu.be/pX_AM-fLfS0?si=02O_-8nUSm-2v-fd",
+                    musique: "https://youtu.be/pJcR0A0Ezik?si=bZpUb8RwnZT-IiuW",
+                    specials: ["Choix 1 de l'équipe"]
+                },
+                {
+                    nom: "Burn It to the Ground",
+                    danseLigne: "https://youtu.be/CZWPs9BnJIw?si=Yy-e99mAxXPTKZ86",
+                    musique: "https://youtu.be/gUxH1zN0yOc?si=2lf1f0Y2fjtyLnR6"
+                },
+                {
+                    nom: "Footloose",
+                    danseLigne: "https://youtu.be/miZJe008SuI?si=Hce79ePsnWhJJE6p",
+                    musique: "https://youtu.be/FDMHZFJnk2s
